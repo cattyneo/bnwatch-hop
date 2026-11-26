@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>Blue Note 予約へ移動中…</title>
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0b0b;color:#f2f2f2;font:16px/1.6 "Noto Sans JP",system-ui,sans-serif}
+  main{padding:24px;text-align:center;max-width:28rem}
+  .big{font-size:20px;font-weight:700}
+  button,a.btn{display:block;width:100%;margin:12px 0;padding:14px;border:0;border-radius:999px;font:inherit;font-weight:700;text-decoration:none;box-sizing:border-box}
+  button{background:#d9b85c;color:#111}
+  a.btn{background:#2a2a2a;color:#f2f2f2}
+  .err{color:#ff8a8a}
+</style>
+</head>
+<body>
+<main>
+  <p class="big" id="msg">🎷 座席選択ページへ移動中…</p>
+  <form id="f" method="POST" action="https://reserve.bluenote.co.jp/reserve/plan/change">
+    <input type="hidden" name="event_id" id="e">
+    <input type="hidden" name="time-slot" id="s">
+    <button type="submit" id="go">座席選択へ進む</button>
+  </form>
+  <a class="btn" id="fallback" href="https://reserve.bluenote.co.jp/reserve/schedule/">日時選択から開く</a>
+</main>
+<script>
+// bnwatch hop v0.1: ?e=<event_id>&s=<YYYYMMDD_N> を受け取り、予約サイトの座席選択へ POST で直行する。
+// 予約サイトの /reserve/plan/change は POST ならセッション無しで公演・日時を受け付ける（GET はセッション必須）。
+(function () {
+  var q = new URLSearchParams(location.search);
+  var e = q.get("e") || "", s = q.get("s") || "";
+  var fb = document.getElementById("fallback");
+  if (/^\d{1,6}$/.test(e)) fb.href = "https://reserve.bluenote.co.jp/reserve/schedule/exec/" + e;
+  if (!/^\d{1,6}$/.test(e) || !/^\d{8}_\d$/.test(s)) {
+    var m = document.getElementById("msg");
+    m.textContent = "リンクのパラメータが不正です";
+    m.className = "big err";
+    document.getElementById("go").style.display = "none";
+    return;
+  }
+  document.getElementById("e").value = e;
+  document.getElementById("s").value = s;
+  document.getElementById("f").submit();
+})();
+</script>
+</body>
+</html>
